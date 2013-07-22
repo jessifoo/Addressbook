@@ -38,7 +38,7 @@ function getFollowerCount($twitterHandle){
  * Series of functions to validate query parameters
  * @param [name,phone number, twitter handle, follower count, id]
  * @return <boolean>: true or false depending on a matching regex or not
- * /
+ */
 function validateName($name){
 	return preg_match('/\D/', $name);
 }
