@@ -1,8 +1,8 @@
 <?php
 
-require_once('TwitterAPIExchange.php');
+require_once('TwitterAPIExchange.php');// or die("did not include"); 
 
-$con = mysql_connect("localhost","jessgycy_jess","pass123") or die("Could not connect: " . mysql_error()); 
+$con = mysql_connect("localhost","jessgycy_jess","oktober1") or die("Could not connect: " . mysql_error()); 
 mysql_select_db("jessgycy_addressbook");
 
 /** 
@@ -34,6 +34,21 @@ function getFollowerCount($twitterHandle){
 	return $followers_count;
 }
 
+function validateName($name){
+	return preg_match('/\D/', $name);
+}
+function validatePhone($phone){
+	return preg_match('/[0-9]{7,11}/', $phone);
+}
+function validateTwitter($twitter){
+	return preg_match('/^[A-Za-z0-9_]{1,15}$/', $twitter);
+}
+function validateCount($count){
+	return preg_match('/[0-9]+/', $count);
+}
+function validateID($id){
+	return preg_match('/[0-9]+/', $id);
+}
 
 /** 
 * Function to save new contact 
@@ -47,9 +62,17 @@ function saveContact($name,$phone,$twitter){
               $twitter = mysql_real_escape_string($twitter);
               $phone = mysql_real_escape_string($phone);
               $count = mysql_real_escape_string($count);
-              $sql="INSERT INTO address (name, phone, twitter, followercount) VALUES 
-              ('$name','$phone','$twitter','$count')";
-              $result=mysql_query($sql)or die(mysql_error()); 
+
+	      if(validateName($name) && validatePhone($phone) && validateTwitter($twitter) && validateCount($count)){
+              		$sql="INSERT INTO address (name, phone, twitter, followercount) VALUES 
+              		('$name',
+              		'$phone',
+              		'$twitter',
+              		'$count')";
+              		$result=mysql_query($sql)or die(mysql_error()); 
+              }else{
+              		die("invalid entries");
+              }
 } 
 
 /** 
@@ -57,9 +80,13 @@ function saveContact($name,$phone,$twitter){
 * @param <int> id //the contact id in database we wish to delete 
 */ 
 function deleteContact($id){ 
-	      	  $id = mysql_real_escape_string($id);
-              $sql='DELETE FROM address WHERE id="'.$id.'"';
-              $result=mysql_query($sql) or die(mysql_error());  
+	      $id = mysql_real_escape_string($id);
+	      if(validateID($id)){	
+              		$sql='DELETE FROM address WHERE id="'.$id.'"';
+              		$result=mysql_query($sql) or die(mysql_error());  
+              }else{
+              		die("invalid entry");
+              }
 } 
 
 /**
@@ -91,9 +118,11 @@ function updateFollowerCount(){
 	foreach($contacts as $val){
 		$count = (int)getFollowerCount($val["twitter"]);
                 $twitter = mysql_real_escape_string($val["twitter"]);
-                $count = mysql_real_escape_string($count);	
-		$query = "UPDATE address SET followercount=".$count." WHERE twitter='" . $twitter ."'";
-		$data = mysql_query($query) or die(mysql_error());
+                $count = mysql_real_escape_string($count);
+                if(validateTwitter($twitter) && validateCount($count)){	
+			$query = "UPDATE address SET followercount=".$count." WHERE twitter='" . $twitter ."'";
+			$data = mysql_query($query) or die(mysql_error());
+		}
 	}
 }
 
@@ -115,10 +144,10 @@ if($action=="add"){
               $output['contacts']=getContacts(); 
               echo json_encode($output); 
 }else if($action=="update"){
-	          updateFollowerCount();
-	          $output['msg']="Follower count updated successfully";
-	          $output['contacts']=getContacts();
-	          echo json_encode($output);	
+	     updateFollowerCount();
+	     $output['msg']="Follower count updated successfully";
+	     $output['contacts']=getContacts();
+	     echo json_encode($output);	
 }else{ 
               $output['contacts']=getContacts(); 
               $output['msg']="list of all contacts"; 
