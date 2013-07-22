@@ -2,7 +2,7 @@
 
 require_once('TwitterAPIExchange.php');// or die("did not include"); 
 
-$con = mysql_connect("localhost","jessgycy_jess","oktober1") or die("Could not connect: " . mysql_error()); 
+$con = mysql_connect("localhost","jessgycy_jess","pass123") or die("Could not connect: " . mysql_error()); 
 mysql_select_db("jessgycy_addressbook");
 
 /** 
