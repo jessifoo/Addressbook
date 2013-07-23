@@ -62,6 +62,7 @@ function validateID($id){
 * @param <string> $twitter: twitter handle of contact
 */ 
 function saveContact($name,$phone,$twitter){ 
+	      $valid = FALSE;
               $count = (int)getFollowerCount($twitter);
               $name = mysql_real_escape_string($name);
               $twitter = mysql_real_escape_string($twitter);
@@ -74,9 +75,12 @@ function saveContact($name,$phone,$twitter){
               		'$phone',
               		'$twitter',
               		'$count')";
-              		$result=mysql_query($sql)or die(mysql_error()); 
+              		$result=mysql_query($sql)or die(mysql_error());
+              		if($result){
+              			$valid = TRUE;
+              		} 
               }else{
-              		die("invalid entries");
+              		//die("invalid entries");
               }
 } 
 
@@ -85,12 +89,16 @@ function saveContact($name,$phone,$twitter){
 * @param <int> id //the contact id in database we wish to delete 
 */ 
 function deleteContact($id){ 
+	      $valid = FALSE;
 	      $id = mysql_real_escape_string($id);
 	      if(validateID($id)){	
               		$sql='DELETE FROM address WHERE id="'.$id.'"';
-              		$result=mysql_query($sql) or die(mysql_error());  
+              		$result=mysql_query($sql) or die(mysql_error()); 
+              		if($result){
+              			$valid=TRUE;
+              		} 
               }else{
-              		die("invalid entry");
+              		//die("invalid entry");
               }
 } 
 
@@ -138,14 +146,22 @@ if($action=="add"){
               $name=$_POST['name']; 
               $phone=$_POST['phone'];
               $twitter=$_POST['twitter'];
-              saveContact($name,$phone,$twitter); 
-              $output['msg']=$name." has been saved successfully"; 
+              $valid = saveContact($name,$phone,$twitter);
+              if($valid){
+              	$output['msg']=$name." has been saved successfully";
+              }else{
+              	$output['msg']="Entry could not be added";
+              }  
               $output['contacts']=getContacts(); 
               echo json_encode($output); 
 }else if($action=="delete"){  
               $id=$_POST['id']; 
-              deleteContact($id); 
-              $output['msg']="one entry has been deleted successfully"; 
+              $valid = deleteContact($id); 
+              if($valid){
+              	$output['msg']="one entry has been deleted successfully";
+              }else{
+              	$output['msg']="Entry could not be deleted";
+              }
               $output['contacts']=getContacts(); 
               echo json_encode($output); 
 }else if($action=="update"){
