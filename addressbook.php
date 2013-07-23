@@ -40,7 +40,7 @@ function getFollowerCount($twitterHandle){
  * @return <boolean>: true or false depending on a matching regex or not
  */
 function validateName($name){
-	return preg_match('/\D/', $name);
+	return preg_match("/^[A-Za-z ']+$/", $name);
 }
 function validatePhone($phone){
 	return preg_match('/[0-9]{7,11}/', $phone);
